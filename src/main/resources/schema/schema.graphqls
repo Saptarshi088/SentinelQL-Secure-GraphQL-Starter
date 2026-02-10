@@ -1,0 +1,10 @@
+type Query{
+    getAllBooks : [BookResponseDto]!
+}
+
+
+
+type BookResponseDto{
+    title : String!
+    pageCount : Int!
+}
