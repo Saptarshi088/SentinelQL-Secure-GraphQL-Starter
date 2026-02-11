@@ -4,6 +4,7 @@ import com.saptarshi.DemoInterview.dto.BookResponseDto;
 import com.saptarshi.DemoInterview.entity.Book;
 import com.saptarshi.DemoInterview.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,7 +22,8 @@ public class BookController {
     public List<BookResponseDto> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
-                .map(b-> new BookResponseDto()
+                .map(b->
+                        BookResponseDto
                         .builder()
                         .pageCount(b.getPageCount())
                         .title(b.getTitle())
@@ -40,5 +42,19 @@ public class BookController {
                 .build();
         var uri = uriComponentsBuilder.path("/books/{id}").buildAndExpand(newBook.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
+    }
+
+    @PostMapping("/byExample")
+    public List<BookResponseDto> getBookByExample(@RequestBody Book book) {
+        Example<Book> example = Example.of(book);
+        return bookRepository.findAll(example)
+                .stream()
+                .map(s->
+                        BookResponseDto.builder()
+                                .title(s.getTitle())
+                                .pageCount(s.getPageCount())
+                                .build()
+                        )
+                .toList();
     }
 }
