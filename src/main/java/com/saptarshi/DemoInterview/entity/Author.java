@@ -4,27 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.List;
 import java.util.Objects;
 
+@Entity
 @Getter
 @Setter
 @ToString
-@Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Book {
+@RequiredArgsConstructor
+public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String firstName;
 
-    private Integer pageCount;
+    private String lastName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id",nullable = false)
-    private Author author;
+    @OneToMany(mappedBy = "author")
+    @ToString.Exclude
+    private List<Book> books;
 
     @Override
     public final boolean equals(Object o) {
@@ -33,8 +32,8 @@ public class Book {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Book book = (Book) o;
-        return getId() != null && Objects.equals(getId(), book.getId());
+        Author author = (Author) o;
+        return getId() != null && Objects.equals(getId(), author.getId());
     }
 
     @Override

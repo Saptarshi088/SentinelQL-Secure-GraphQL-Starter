@@ -24,13 +24,15 @@ public class BookController {
     @GetMapping(value="/getAllBooks",produces = "application/json")
     @Observed(name = "Book.GET_ALL")
     public List<BookResponseDto> getAllBooks() {
-        return bookRepository.findAll()
+        return bookRepository.findAllWithEagerRelationships()
                 .stream()
                 .map(b->
                         BookResponseDto
                         .builder()
                         .pageCount(b.getPageCount())
                         .title(b.getTitle())
+                                .authorFirstName(b.getAuthor().getFirstName())
+                                .authorLastName(b.getAuthor().getLastName())
                         .build()
                 )
                 .toList();

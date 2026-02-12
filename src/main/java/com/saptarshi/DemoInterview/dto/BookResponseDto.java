@@ -10,4 +10,6 @@ import lombok.*;
 public class BookResponseDto {
     private String title;
     private Integer pageCount;
+    private String authorFirstName;
+    private String authorLastName;
 }

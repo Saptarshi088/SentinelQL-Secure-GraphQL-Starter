@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -26,13 +25,15 @@ public class GraphQLController {
 
     @QueryMapping
     public List<BookResponseDto> getAllBooks() {
-        return bookRepository.findAll()
+        return bookRepository.findAllWithEagerRelationships()
                 .stream()
                 .map(b ->
                         BookResponseDto
                                 .builder()
                                 .title(b.getTitle())
                                 .pageCount(b.getPageCount())
+                                .authorFirstName(b.getAuthor().getFirstName())
+                                .authorLastName(b.getAuthor().getLastName())
                                 .build()
 
                 )
