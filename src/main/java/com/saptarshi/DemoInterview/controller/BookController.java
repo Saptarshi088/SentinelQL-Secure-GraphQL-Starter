@@ -3,6 +3,8 @@ package com.saptarshi.DemoInterview.controller;
 import com.saptarshi.DemoInterview.dto.BookResponseDto;
 import com.saptarshi.DemoInterview.entity.Book;
 import com.saptarshi.DemoInterview.repository.BookRepository;
+import io.micrometer.observation.annotation.Observed;
+import io.opentelemetry.api.trace.Tracer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
 
-    public final BookRepository bookRepository;
+    private final BookRepository bookRepository;
+    private final Tracer tracer;
 
-    @GetMapping("/getAllBooks")
+    @GetMapping(value="/getAllBooks",produces = "application/json")
+    @Observed(name = "Book.GET_ALL")
     public List<BookResponseDto> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
