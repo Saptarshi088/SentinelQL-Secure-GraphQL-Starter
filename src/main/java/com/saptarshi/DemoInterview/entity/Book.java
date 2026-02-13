@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -23,7 +23,7 @@ public class Book {
     private Integer pageCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id",nullable = false)
+    @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
     @Override

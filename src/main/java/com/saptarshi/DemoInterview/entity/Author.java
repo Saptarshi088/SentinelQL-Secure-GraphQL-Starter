@@ -1,7 +1,10 @@
 package com.saptarshi.DemoInterview.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
@@ -21,7 +24,7 @@ public class Author {
 
     private String lastName;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)
     @ToString.Exclude
     private List<Book> books;
 

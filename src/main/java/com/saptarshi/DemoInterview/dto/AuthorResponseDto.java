@@ -7,8 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BookResponseDto {
-    private String title;
-    private Integer pageCount;
-    private AuthorResponseDto author;
+public class AuthorResponseDto {
+    private String firstName;
+    private String lastName;
 }

@@ -1,11 +1,14 @@
 type Query{
     getAllBooks : [BookResponseDto]!
+    getAllAuthors : [authorResponseDto]!
 }
 
 type Mutation{
     addBook(input : AddBookRequest) : BookResponseDto!
     updateBook(input : UpdateBookRequest) : BookResponseDto!
     deleteBook(input : ID) : String!
+    addAuthor(input : addAuthorRequest) : authorResponseDto!
+    deleteAuthor(input : ID!) : authorResponseDto!
 }
 
 input UpdateBookRequest{
@@ -17,6 +20,8 @@ input UpdateBookRequest{
 input AddBookRequest{
     title : String!
     pageCount : Int!
+    authorId : ID!
+
 }
 
 
@@ -27,6 +32,11 @@ type BookResponseDto{
 }
 
 type authorResponseDto {
+    firstName : String!
+    lastName : String!
+}
+
+input addAuthorRequest{
     firstName : String!
     lastName : String!
 }

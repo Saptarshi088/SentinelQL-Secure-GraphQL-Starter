@@ -1,6 +1,5 @@
 package com.saptarshi.DemoInterview.repository;
 
-import com.saptarshi.DemoInterview.entity.Author;
 import com.saptarshi.DemoInterview.entity.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

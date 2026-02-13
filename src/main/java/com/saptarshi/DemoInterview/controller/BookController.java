@@ -1,5 +1,6 @@
 package com.saptarshi.DemoInterview.controller;
 
+import com.saptarshi.DemoInterview.dto.AuthorResponseDto;
 import com.saptarshi.DemoInterview.dto.BookResponseDto;
 import com.saptarshi.DemoInterview.entity.Book;
 import com.saptarshi.DemoInterview.repository.BookRepository;
@@ -21,19 +22,22 @@ public class BookController {
     private final BookRepository bookRepository;
     private final Tracer tracer;
 
-    @GetMapping(value="/getAllBooks",produces = "application/json")
+    @GetMapping(value = "/getAllBooks", produces = "application/json")
     @Observed(name = "Book.GET_ALL")
     public List<BookResponseDto> getAllBooks() {
         return bookRepository.findAllWithEagerRelationships()
                 .stream()
-                .map(b->
+                .map(b ->
                         BookResponseDto
-                        .builder()
-                        .pageCount(b.getPageCount())
-                        .title(b.getTitle())
-                                .authorFirstName(b.getAuthor().getFirstName())
-                                .authorLastName(b.getAuthor().getLastName())
-                        .build()
+                                .builder()
+                                .pageCount(b.getPageCount())
+                                .title(b.getTitle())
+                                .author(b.getAuthor() == null ? null :
+                                        AuthorResponseDto.builder()
+                                                .firstName(b.getAuthor().getFirstName())
+                                                .lastName(b.getAuthor().getLastName())
+                                                .build())
+                                .build()
                 )
                 .toList();
     }
@@ -45,6 +49,11 @@ public class BookController {
                 .builder()
                 .title(newBook.getTitle())
                 .pageCount(newBook.getPageCount())
+                .author(newBook.getAuthor() == null ? null :
+                        AuthorResponseDto.builder()
+                                .firstName(newBook.getAuthor().getFirstName())
+                                .lastName(newBook.getAuthor().getLastName())
+                                .build())
                 .build();
         var uri = uriComponentsBuilder.path("/books/{id}").buildAndExpand(newBook.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
@@ -55,12 +64,17 @@ public class BookController {
         Example<Book> example = Example.of(book);
         return bookRepository.findAll(example)
                 .stream()
-                .map(s->
+                .map(s ->
                         BookResponseDto.builder()
                                 .title(s.getTitle())
                                 .pageCount(s.getPageCount())
+                                .author(s.getAuthor() == null ? null :
+                                        AuthorResponseDto.builder()
+                                                .firstName(s.getAuthor().getFirstName())
+                                                .lastName(s.getAuthor().getLastName())
+                                                .build())
                                 .build()
-                        )
+                )
                 .toList();
     }
 }

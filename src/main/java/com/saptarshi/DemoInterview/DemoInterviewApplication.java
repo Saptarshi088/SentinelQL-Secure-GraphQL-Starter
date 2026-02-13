@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin
 public class DemoInterviewApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DemoInterviewApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DemoInterviewApplication.class, args);
+    }
 
 }
