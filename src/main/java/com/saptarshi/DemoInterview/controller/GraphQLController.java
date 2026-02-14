@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -44,6 +45,7 @@ public class GraphQLController {
                 .toList();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public BookResponseDto addBook(@Argument(name = "input") AddBookRequest request) {
 
@@ -65,6 +67,7 @@ public class GraphQLController {
                 .build();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public BookResponseDto updateBook(@Argument(name = "input") UpdateBookRequest request) {
         var book = bookRepository.findById(request.getId()).orElse(null);
@@ -86,6 +89,7 @@ public class GraphQLController {
         );
     }
 
+    @PreAuthorize("isAuthenticated()")
     @MutationMapping
     public String deleteBook(@Argument(name = "input") Long id) {
         var book = bookRepository.findById(id).orElse(null);
@@ -96,6 +100,7 @@ public class GraphQLController {
         return "Book with ID : " + id + " Title : " + book.getTitle() + " Deleted";
     }
 
+    @PreAuthorize("isAuthenticated()")
     @QueryMapping
     public List<AuthorResponseDto> getAllAuthors() {
         return authorRepository.findAll()
