@@ -28,7 +28,7 @@ public class JwtService {
                 .subject(appUser.getEmail())
                 .claim("role", appUser.getRole().name())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()))
+                .expiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(TOKEN_EXPIRATION_TIME).toMillis()))
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
                 .compact();
     }
