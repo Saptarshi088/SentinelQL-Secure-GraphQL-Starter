@@ -24,7 +24,7 @@ Secure-by-default, beginner-friendly starter that shows how to protect a Spring 
    export SPRING_DATASOURCE_PASSWORD="changeme"
    export JWT_SECRET="generate-a-64-byte-random-string"
    export JWT_TOKEN_EXPIRATION=15   # minutes
-   ```
+   ``` 
 3. **Prepare the database**: create the schema referenced in `SPRING_DATASOURCE_URL`; JPA is set to `ddl-auto=update` for local convenience.
 4. **Run the app**: `./mvnw spring-boot:run` (or `mvn spring-boot:run`).
 5. **Explore GraphQL**: open `http://localhost:8080/graphiql` and point it to `http://localhost:8080/graphql`.
