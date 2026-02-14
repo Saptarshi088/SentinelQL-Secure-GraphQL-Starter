@@ -104,6 +104,3 @@ query {
 ```bash
 ./mvnw test
 ```
-
-## License
-Add your preferred license (MIT/Apache-2.0) before publishing.
