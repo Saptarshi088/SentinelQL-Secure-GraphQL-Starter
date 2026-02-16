@@ -13,13 +13,18 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "books", indexes = {
+        @Index(name = "idx_book_title", columnList = "title")
+})
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 200)
     private String title;
 
+    @Column(nullable = false)
     private Integer pageCount;
 
     @ManyToOne(fetch = FetchType.LAZY)

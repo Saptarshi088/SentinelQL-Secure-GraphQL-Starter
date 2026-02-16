@@ -15,16 +15,21 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "authors", indexes = {
+        @Index(name = "idx_author_name", columnList = "lastName,firstName")
+})
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String firstName;
 
+    @Column(nullable = false, length = 100)
     private String lastName;
 
-    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Book> books;
 

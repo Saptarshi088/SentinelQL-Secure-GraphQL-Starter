@@ -1,14 +1,14 @@
 package com.saptarshi.DemoInterview.security;
 
 import com.saptarshi.DemoInterview.jwt.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,11 +16,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -36,33 +35,36 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         var token = header.substring(7);
-        if(jwtService.isTokenExpired(token)) {
-           filterChain.doFilter(request, response);
-           return;
+
+        try {
+            if (jwtService.isTokenExpired(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String email = jwtService.extractEmail(token);
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                var userDetails = userDetailsService.loadUserByUsername(email);
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        } catch (JwtException | IllegalArgumentException ex) {
+            log.warn("Invalid JWT presented for path {}", request.getRequestURI());
+            SecurityContextHolder.clearContext();
         }
 
-
-        String email = jwtService.extractEmail(token);
-        String role = jwtService.extractRole(token);
-
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            List<GrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
-
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            authorities
-                    );
-
-            authToken.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
         filterChain.doFilter(request, response);
     }
 }
