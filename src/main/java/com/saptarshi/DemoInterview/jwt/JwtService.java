@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
 import java.util.function.Function;
@@ -17,10 +19,10 @@ import java.util.function.Function;
 public class JwtService {
 
     @Value("${jwt.secret}")
-    private String SECRET;
+    private String secret;
 
     @Value("${jwt.token.expiration}")
-    private long TOKEN_EXPIRATION_TIME;
+    private long tokenExpirationTime;
 
     public String generateToken(AppUser appUser) {
 
@@ -28,14 +30,14 @@ public class JwtService {
                 .subject(appUser.getEmail())
                 .claim("role", appUser.getRole().name())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(TOKEN_EXPIRATION_TIME).toMillis()))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .expiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(tokenExpirationTime).toMillis()))
+                .signWith(getSigningKey())
                 .compact();
     }
 
     private <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
         var claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -55,4 +57,11 @@ public class JwtService {
         return getClaims(token, claims -> claims.get("role", String.class));
     }
 
+    public long getTokenExpirationMinutes() {
+        return tokenExpirationTime;
+    }
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 }

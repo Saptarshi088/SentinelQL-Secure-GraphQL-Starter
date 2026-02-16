@@ -1,9 +1,14 @@
 package com.saptarshi.DemoInterview.controller;
 
+import com.saptarshi.DemoInterview.dto.AuthResponse;
+import com.saptarshi.DemoInterview.dto.SignUpRequest;
 import com.saptarshi.DemoInterview.dto.UserLogInRequest;
 import com.saptarshi.DemoInterview.entity.AppUser;
+import com.saptarshi.DemoInterview.exception.ConflictException;
+import com.saptarshi.DemoInterview.exception.ResourceNotFoundException;
 import com.saptarshi.DemoInterview.jwt.JwtService;
 import com.saptarshi.DemoInterview.repository.AppUserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,33 +30,39 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<AppUser> signUp(@RequestBody AppUser appUser) {
-        var user = appUserRepository.findByEmail(appUser.getEmail());
-        if(user != null) {
-            throw new RuntimeException("User already Exist");
+    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest request) {
+        var existingUser = appUserRepository.findByEmail(request.getEmail());
+        if (existingUser != null) {
+            throw new ConflictException("User already exists");
         }
-        user = new AppUser();
-        user.setId(appUser.getId());
-        user.setPassword(passwordEncoder.encode(appUser.getPassword()));
-        user.setEmail(appUser.getEmail());
-        user.setRole(appUser.getRole());
 
-        return ResponseEntity.ok(appUserRepository.save(user));
+        var user = new AppUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setRole(request.getRole());
+        appUserRepository.save(user);
 
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/log-in")
-    public ResponseEntity<String> logIn(@RequestBody UserLogInRequest request){
+    public ResponseEntity<AuthResponse> logIn(@Valid @RequestBody UserLogInRequest request) {
         var user = appUserRepository.findByEmail(request.getEmail());
-        if(user==null){
-            return ResponseEntity.status(401).build();
+        if (user == null) {
+            throw new ResourceNotFoundException("User does not exist");
         }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        return ResponseEntity.ok(jwtService.generateToken(user));
+
+        return ResponseEntity.ok(AuthResponse.builder()
+                .token(jwtService.generateToken(user))
+                .tokenType("Bearer")
+                .expiresInMinutes(jwtService.getTokenExpirationMinutes())
+                .build());
     }
 }
